@@ -565,7 +565,34 @@ def find_bad_from_discsv(csv_root, save_txt):
         if 1 not in sess_QA[key]:
             f.write(key + '\n')
     f.close()        
+    
+def check_exposure(path):
+    """
+    Check if the DICOMs can pass the exposure consistency check
+    :param path: The absolute directory path of all testing DICOM files
+    :return: boolean
+    """
+    
+    # get all dicom files list in the given path
+    dcmList = [os.path.abspath(os.path.join(path, p)) for p in os.listdir(path)]
+    
+    # A dictionary to help verify dicom files' exposure value
+    # <key, value>:
+    # Key: the dicom's AcquisitionTime.
+    # Value: the dicom's exposure value.
+    dic_exposure = {}
         
+    for dcmFile in dcmList:
+        dcm = pydicom.dcmread(dcmFile)
+        acqTime = dataset.AcquisitionTime
+        if acqTime in dic_exposure:
+            if dic_exposure[acqTime] !=dcm.Exposure:
+                return False
+        else:
+            dic_exposure[acqTime] =dcm.Exposure
+
+    #    print(dic_exposure)
+    return True
         
 
     
